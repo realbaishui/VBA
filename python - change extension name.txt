@@ -1,0 +1,26 @@
+import os
+
+def change_sas_to_txt(directory):
+    # List all files in the specified directory and its subdirectories
+    for root, _, files in os.walk(directory):
+        for filename in files:
+            if filename.endswith(".sas"):
+                # Generate the new file name with the .txt extension
+                new_filename = os.path.splitext(filename)[0] + ".txt"
+                
+                # Construct the full file paths
+                old_filepath = os.path.join(root, filename)
+                new_filepath = os.path.join(root, new_filename)
+                
+                # Rename the file
+                os.rename(old_filepath, new_filepath)
+                print(f"Renamed: {old_filepath} -> {new_filepath}")
+
+if __name__ == "__main__":
+    # Specify the directory where you want to start searching for .sas files
+    starting_directory = r'C:\Path\To\Start\Folder'  # Replace with your starting folder path
+    
+    # Call the function to change file extensions
+    change_sas_to_txt(starting_directory)
+    
+    print("File extensions changed to .txt.")

@@ -1,0 +1,80 @@
+Sub ProcessAllExcelFilesRecursively()
+    Dim FolderPath As String
+    Dim FileName As String
+    Dim wb As Workbook
+    Dim ws As Worksheet
+    Dim FileSystem As Object
+    Dim SubFolder As Object
+    
+    ' Set the folder path where you want to start searching for Excel files
+    FolderPath = "C:\Path\To\Start\Folder\" ' Replace with your starting folder path
+    
+    ' Initialize the FileSystemObject
+    Set FileSystem = CreateObject("Scripting.FileSystemObject")
+    
+    ' Check if the folder exists
+    If Not FileSystem.FolderExists(FolderPath) Then
+        MsgBox "Folder not found.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Get the list of Excel files in the current folder and its subfolders
+    FileName = Dir(FolderPath & "\*.xls*")
+    Do While FileName <> ""
+        ' Open the workbook
+        Set wb = Workbooks.Open(FolderPath & FileName)
+        
+        ' Add a blank worksheet
+        Set ws = wb.Sheets.Add(After:=wb.Sheets(wb.Sheets.Count))
+        ws.Name = "NewSheet"
+        
+        ' Save the workbook
+        wb.Save
+        
+        ' Close the workbook (you can choose to save changes or not)
+        wb.Close SaveChanges:=True ' Change to False if you don't want to save changes
+        
+        ' Release the workbook object
+        Set wb = Nothing
+        
+        ' Get the next Excel file in the folder
+        FileName = Dir
+    Loop
+    
+    ' Recursively process subfolders
+    For Each SubFolder In FileSystem.GetFolder(FolderPath).SubFolders
+        ProcessAllExcelFilesInSubfolder SubFolder.Path
+    Next SubFolder
+    
+    ' Inform the user when the operation is complete
+    MsgBox "All Excel files processed.", vbInformation
+End Sub
+
+Sub ProcessAllExcelFilesInSubfolder(ByVal SubFolderPath As String)
+    ' This subroutine is called recursively to process Excel files in subfolders
+    Dim FileName As String
+    Dim wb As Workbook
+    Dim ws As Worksheet
+    
+    FileName = Dir(SubFolderPath & "\*.xls*")
+    Do While FileName <> ""
+        ' Open the workbook
+        Set wb = Workbooks.Open(SubFolderPath & "\" & FileName)
+        
+        ' Add a blank worksheet
+        Set ws = wb.Sheets.Add(After:=wb.Sheets(wb.Sheets.Count))
+        ws.Name = "NewSheet"
+        
+        ' Save the workbook
+        wb.Save
+        
+        ' Close the workbook (you can choose to save changes or not)
+        wb.Close SaveChanges:=True ' Change to False if you don't want to save changes
+        
+        ' Release the workbook object
+        Set wb = Nothing
+        
+        ' Get the next Excel file in the subfolder
+        FileName = Dir
+    Loop
+End Sub

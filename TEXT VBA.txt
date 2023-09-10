@@ -1,0 +1,50 @@
+Sub AddBlankLineToEndOfTextFiles()
+    Dim FileSystem As Object
+    Dim FolderPath As String
+    Dim FileName As String
+    Dim FileContent As String
+    Dim TextFile As Object
+    
+    ' Set the folder path where you want to start searching for text files
+    FolderPath = "C:\Path\To\Start\Folder\" ' Replace with your starting folder path
+    
+    ' Initialize the FileSystemObject
+    Set FileSystem = CreateObject("Scripting.FileSystemObject")
+    
+    ' Check if the folder exists
+    If Not FileSystem.FolderExists(FolderPath) Then
+        MsgBox "Folder not found.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Get the list of text files in the current folder and its subfolders
+    FileName = Dir(FolderPath & "\*.txt")
+    Do While FileName <> ""
+        ' Open the text file for reading
+        Set TextFile = FileSystem.OpenTextFile(FolderPath & FileName, 1) ' 1 for reading
+        
+        ' Read the file content
+        FileContent = TextFile.ReadAll
+        
+        ' Close the text file
+        TextFile.Close
+        
+        ' Open the text file for writing (appending)
+        Set TextFile = FileSystem.OpenTextFile(FolderPath & FileName, 8) ' 8 for appending
+        
+        ' Add a blank line at the end of the file
+        TextFile.WriteLine ""
+        
+        ' Write the original content back to the file
+        TextFile.Write FileContent
+        
+        ' Close the text file
+        TextFile.Close
+        
+        ' Get the next text file in the folder
+        FileName = Dir
+    Loop
+    
+    ' Inform the user when the operation is complete
+    MsgBox "Blank lines added to all text files.", vbInformation
+End Sub
