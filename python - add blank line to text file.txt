@@ -1,0 +1,24 @@
+import os
+
+def add_blank_line_to_text_files(directory):
+    # List all files in the specified directory and its subdirectories
+    for root, _, files in os.walk(directory):
+        for filename in files:
+            if filename.endswith(".txt"):
+                # Construct the full file path
+                filepath = os.path.join(root, filename)
+
+                # Open the text file in append mode
+                with open(filepath, "a") as file:
+                    # Add a blank line at the end
+                    file.write("\n")
+                print(f"Added a blank line to: {filepath}")
+
+if __name__ == "__main__":
+    # Specify the directory where you want to start searching for .txt files
+    starting_directory = r'C:\Path\To\Start\Folder'  # Replace with your starting folder path
+    
+    # Call the function to add blank lines to text files
+    add_blank_line_to_text_files(starting_directory)
+    
+    print("Blank lines added to all text files.")
