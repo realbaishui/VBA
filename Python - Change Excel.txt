@@ -1,0 +1,37 @@
+import os
+import openpyxl
+
+def add_blank_sheet_to_excel_files(directory):
+    # List all files in the specified directory and its subdirectories
+    for root, _, files in os.walk(directory):
+        for filename in files:
+            if filename.endswith(".xlsx") or filename.endswith(".xls"):
+                # Construct the full file path
+                filepath = os.path.join(root, filename)
+
+                try:
+                    # Open the Excel file
+                    wb = openpyxl.load_workbook(filepath)
+                    
+                    # Add a blank worksheet
+                    sheet = wb.create_sheet(title="NewSheet")
+                    
+                    # Save the Excel file
+                    wb.save(filepath)
+                    
+                    # Close the Excel file
+                    wb.close()
+                    
+                    print(f"Added a blank sheet to: {filepath}")
+
+                except Exception as e:
+                    print(f"Error processing {filepath}: {e}")
+
+if __name__ == "__main__":
+    # Specify the directory where you want to start searching for Excel files
+    starting_directory = r'C:\Path\To\Start\Folder'  # Replace with your starting folder path
+    
+    # Call the function to add a blank sheet to Excel files
+    add_blank_sheet_to_excel_files(starting_directory)
+    
+    print("Blank sheets added to all Excel files.")
