@@ -1,3 +1,85 @@
+If you want to access email messages that are already saved on your computer, you can use the email library in Python to parse and read the content of those email files. This method assumes you have email files in a common format, such as .eml or .msg files.
+
+Here's how you can read the content of an email message saved on your computer:
+
+
+import email
+from email.header import decode_header
+
+# Path to the email file
+email_file_path = "path_to_your_email.eml"  # Replace with the path to your email file
+
+# Open and parse the email file
+with open(email_file_path, "rb") as email_file:
+    email_message = email.message_from_bytes(email_file.read())
+
+# Get the subject
+subject, encoding = decode_header(email_message["Subject"])[0]
+if isinstance(subject, bytes):
+    subject = subject.decode(encoding or "utf-8")
+
+# Get the email body
+if email_message.is_multipart():
+    for part in email_message.walk():
+        if part.get_content_type() == "text/plain":
+            body = part.get_payload(decode=True).decode("utf-8")
+            print("Subject:", subject)
+            print("Body:", body)
+else:
+    # If it's not multipart, it may be a simple text/plain email
+    body = email_message.get_payload(decode=True).decode("utf-8")
+    print("Subject:", subject)
+    print("Body:", body)
+
+
+Replace "path_to_your_email.eml" with the actual path to the email file you want to read. This code will open and parse the email file, extract the subject and body, and print them to the console.
+
+Please note that the format of email files can vary, and this code assumes that you have email files in a format that the email library can parse, such as .eml files. If you have email files in a different format, you may need to use a specialized library or tool to convert them to a format that can be processed by the email library.
+
+
+
+
+To extract information from a specific part of an email body, you can use Python's string manipulation methods, regular expressions, or more advanced parsing libraries like BeautifulSoup if the email body contains HTML content. Here's a basic example of how to extract information from a part of the email body using string manipulation and regular expressions:
+
+Let's assume you want to extract a specific piece of information enclosed in brackets (e.g., [Info]) from the email body.
+
+In this example, we use a regular expression pattern to search for text enclosed within [Info] and [EndInfo] brackets. If a match is found, we extract and print the matched information.
+
+You can modify the regular expression pattern to suit your specific needs. If the email body contains HTML content, consider using a library like BeautifulSoup to parse and extract information from the HTML structure.
+
+Remember that the exact approach for extracting information from an email body will depend on the structure and format of the email content you're working with. You may need to adjust the regular expression or parsing logic accordingly.
+
+
+
+import re
+
+# Sample email body
+email_body = """
+Hello,
+
+Here is some information: [Info] This is the information you want [EndInfo]
+
+Best regards,
+Your Name
+"""
+
+# Define a regular expression pattern to match the information enclosed in brackets
+pattern = r'\[Info\](.*?)\[EndInfo\]'
+
+# Use the re.search method to find the matched text
+match = re.search(pattern, email_body, re.DOTALL)
+
+if match:
+    # Extract the matched information
+    info_text = match.group(1).strip()
+    print("Extracted Information:", info_text)
+else:
+    print("Information not found in the email body.")
+
+
+If you want to extract information from a table within the email body, you can use a library like BeautifulSoup to parse the HTML content of the email and then locate and extract data from the table. Here's a step-by-step example
+
+
 from bs4 import BeautifulSoup
 
 # Sample email body containing an HTML table
