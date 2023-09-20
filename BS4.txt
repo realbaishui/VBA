@@ -1,0 +1,53 @@
+from bs4 import BeautifulSoup
+
+# Sample email body containing an HTML table
+email_body = """
+<html>
+<head>
+    <title>Email with Table</title>
+</head>
+<body>
+    <h1>Email with Table</h1>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Age</th>
+        </tr>
+        <tr>
+            <td>John</td>
+            <td>30</td>
+        </tr>
+        <tr>
+            <td>Alice</td>
+            <td>25</td>
+        </tr>
+    </table>
+</body>
+</html>
+"""
+
+# Parse the HTML content of the email
+soup = BeautifulSoup(email_body, 'html.parser')
+
+# Locate the table element (assuming there is only one table in the email)
+table = soup.find('table')
+
+if table:
+    # Extract data from the table
+    table_data = []
+    rows = table.find_all('tr')
+    for row in rows:
+        cols = row.find_all('td')
+        cols = [col.get_text(strip=True) for col in cols]
+        table_data.append(cols)
+
+    # Remove the header row if needed
+    if table_data and len(table_data) > 0:
+        header = table_data[0]
+        table_data = table_data[1:]
+
+    # Print the extracted data
+    for row in table_data:
+        print(row)
+else:
+    print("No table found in the email body.")
