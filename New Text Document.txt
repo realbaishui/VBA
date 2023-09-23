@@ -18,14 +18,22 @@ def add_blank_sheet(filename, sheet_name):
     workbook.save(filename)
     workbook.close()
 
-# Specify the input Excel file with the .xls extension
-input_file = 'example.xls'
+# Specify the folder or path where your .xls files are located
+folder_path = '/path/to/your/folder'
 
-# Change the extension to .xlsx
-change_extension(input_file)
+# Iterate through all files in the folder
+for filename in os.listdir(folder_path):
+    if filename.endswith('.xls'):
+        full_path = os.path.join(folder_path, filename)
+        
+        # Change the extension to .xlsx
+        change_extension(full_path)
+        
+        # Add a blank sheet to the Excel file
+        new_sheet_name = 'NewSheet'
+        add_blank_sheet(full_path, new_sheet_name)
+        
+        print(f"Excel file '{filename}' has been renamed and a new sheet '{new_sheet_name}' has been added.")
 
-# Add a blank sheet to the Excel file
-new_sheet_name = 'NewSheet'
-add_blank_sheet(input_file, new_sheet_name)
-
-print(f"Excel file '{input_file}' has been renamed and a new sheet '{new_sheet_name}' has been added.")
+print("All Excel files in the folder have been processed.")
+Make sure to replace '/path/to/your/folder' with the actual path to the folder containing your .xls files. This script will process all .xls files in the specified folder, change their extensions to .xlsx, and add a new sheet to each of them.
