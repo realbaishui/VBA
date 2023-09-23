@@ -1,0 +1,31 @@
+import os
+from openpyxl import Workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+import pandas as pd
+
+# Function to change file extension from .xls to .xlsx
+def change_extension(filename):
+    base = os.path.splitext(filename)[0]
+    os.rename(filename, base + '.xlsx')
+
+# Function to add a blank sheet to an Excel file
+def add_blank_sheet(filename, sheet_name):
+    workbook = Workbook()
+    workbook.save(filename)
+    workbook = pd.ExcelWriter(filename, engine='openpyxl')
+    workbook.book = Workbook()
+    workbook.sheets = dict((ws.title, ws) for ws in workbook.book.worksheets)
+    workbook.save(filename)
+    workbook.close()
+
+# Specify the input Excel file with the .xls extension
+input_file = 'example.xls'
+
+# Change the extension to .xlsx
+change_extension(input_file)
+
+# Add a blank sheet to the Excel file
+new_sheet_name = 'NewSheet'
+add_blank_sheet(input_file, new_sheet_name)
+
+print(f"Excel file '{input_file}' has been renamed and a new sheet '{new_sheet_name}' has been added.")
