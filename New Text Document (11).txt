@@ -1,0 +1,32 @@
+import os
+import nbformat
+
+def add_blank_line_to_ipynb(input_file_path, output_file_path):
+    try:
+        # Open the Jupyter Notebook file
+        with open(input_file_path, 'r', encoding='utf-8') as notebook_file:
+            notebook_content = nbformat.read(notebook_file, as_version=4)
+        
+        # Add a blank cell (empty markdown cell) to the end of the notebook
+        blank_cell = nbformat.v4.new_markdown_cell(source='')
+        notebook_content.cells.append(blank_cell)
+
+        # Save the modified notebook to the output file path
+        with open(output_file_path, 'w', encoding='utf-8') as output_file:
+            nbformat.write(notebook_content, output_file)
+
+        print(f"Blank line added to: {output_file_path}")
+    except Exception as e:
+        print(f"Error processing {input_file_path}: {str(e)}")
+
+def process_directory(directory):
+    for root, _, files in os.walk(directory):
+        for filename in files:
+            if filename.lower().endswith(".ipynb"):
+                input_file_path = os.path.join(root, filename)
+                output_file_path = input_file_path  # Use the same location and name
+                add_blank_line_to_ipynb(input_file_path, output_file_path)
+
+if __name__ == "__main__":
+    target_directory = "your_target_directory_path_here"
+    process_directory(target_directory)
