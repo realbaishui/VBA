@@ -1,0 +1,35 @@
+import os
+import fitz  # PyMuPDF
+
+# Directory containing the PDF files and its subdirectories
+directory_path = "/path/to/your/directory"
+
+# Function to find all PDF files recursively
+def find_pdf_files(directory):
+    pdf_files = []
+    for root, _, files in os.walk(directory):
+        for filename in files:
+            if filename.endswith(".pdf"):
+                pdf_files.append(os.path.join(root, filename))
+    return pdf_files
+
+# Get a list of all PDF files in the specified directory and its subdirectories
+pdf_files = find_pdf_files(directory_path)
+
+# Iterate over each PDF file and add a blank page
+for pdf_file in pdf_files:
+    try:
+        pdf_document = fitz.open(pdf_file)
+        blank_page = pdf_document.new_page(width=612, height=792)  # A4 size page
+
+        # Add the blank page to the end of the document
+        pdf_document.insert_page(-1, blank_page)
+
+        # Save the modified PDF with the same name
+        output_file_path = pdf_file
+        pdf_document.save(output_file_path)
+        pdf_document.close()
+
+        print(f"Blank page added and PDF saved: {output_file_path}")
+    except Exception as e:
+        print(f"Error processing {pdf_file}: {e}")
