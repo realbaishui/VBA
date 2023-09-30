@@ -1,0 +1,48 @@
+import os
+from pptx import Presentation
+
+# Directory containing the PowerPoint files and its subdirectories
+directory_path = "/path/to/your/directory"
+
+# Function to find all PPTX files recursively
+def find_pptx_files(directory):
+    pptx_files = []
+    for root, _, files in os.walk(directory):
+        for filename in files:
+            if filename.endswith(".pptx"):
+                pptx_files.append(os.path.join(root, filename))
+    return pptx_files
+
+# Function to find the layout index for a blank slide in a presentation
+def find_blank_slide_layout(prs):
+    for i, layout in enumerate(prs.slide_layouts):
+        if not layout.placeholders:
+            return i
+    return None
+
+# Get a list of all PPTX files in the specified directory and its subdirectories
+pptx_files = find_pptx_files(directory_path)
+
+# Iterate over each PPTX file and add a blank slide
+for pptx_file in pptx_files:
+    try:
+        # Open the existing PowerPoint file
+        prs = Presentation(pptx_file)
+
+        # Find the layout index for a blank slide
+        blank_slide_layout_index = find_blank_slide_layout(prs)
+
+        if blank_slide_layout_index is not None:
+            # Add a blank slide at the end
+            slide_layout = prs.slide_layouts[blank_slide_layout_index]
+            slide = prs.slides.add_slide(slide_layout)
+
+            # Save the modified PowerPoint file with the same name
+            output_file_path = pptx_file
+            prs.save(output_file_path)
+
+            print(f"Blank slide added and PowerPoint saved: {output_file_path}")
+        else:
+            print(f"No blank slide layout found in {pptx_file}. Skipping.")
+    except Exception as e:
+        print(f"Error processing {pptx_file}: {e}")
