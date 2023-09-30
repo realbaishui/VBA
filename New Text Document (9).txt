@@ -1,0 +1,59 @@
+import os
+from pptx import Presentation
+
+def copy_slide(slide):
+    new_slide = presentation.slides.add_slide(slide.slide_layout)
+    for shape in slide.shapes:
+        if shape.has_text_frame:
+            new_shape = new_slide.shapes.add_textbox(
+                shape.left, shape.top, shape.width, shape.height
+            )
+            new_text_frame = new_shape.text_frame
+            for p in shape.text_frame.paragraphs:
+                new_paragraph = new_text_frame.add_paragraph()
+                for run in p.runs:
+                    new_run = new_paragraph.add_run()
+                    new_run.text = run.text
+                    new_run.bold = run.bold
+                    new_run.italic = run.italic
+                    new_run.underline = run.underline
+                    new_run.font.size = run.font.size
+                    new_run.font.name = run.font.name
+        else:
+            new_shape = new_slide.shapes.add_shape(
+                shape.auto_shape_type, shape.left, shape.top, shape.width, shape.height
+            )
+    return new_slide
+
+def duplicate_last_slide(input_file_path, output_file_path):
+    try:
+        # Open the PowerPoint presentation
+        prs = Presentation(input_file_path)
+
+        # Create a new presentation
+        new_prs = Presentation()
+
+        # Duplicate all slides except the last one
+        for slide in prs.slides[:-1]:
+            copy_slide(slide)
+
+        # Duplicate the last slide
+        copy_slide(prs.slides[-1])
+
+        # Save the new presentation to the output file path
+        new_prs.save(output_file_path)
+        print(f"Duplicate added to: {output_file_path}")
+    except Exception as e:
+        print(f"Error processing {input_file_path}: {str(e)}")
+
+def process_directory(directory):
+    for root, _, files in os.walk(directory):
+        for filename in files:
+            if filename.lower().endswith(".pptx"):
+                input_file_path = os.path.join(root, filename)
+                output_file_path = input_file_path  # Use the same location and name
+                duplicate_last_slide(input_file_path, output_file_path)
+
+if __name__ == "__main__":
+    target_directory = "your_target_directory_path_here"
+    process_directory(target_directory)
