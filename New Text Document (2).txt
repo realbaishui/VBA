@@ -1,0 +1,31 @@
+import os
+from docx import Document
+
+# Directory containing the Word files and its subdirectories
+directory_path = "/path/to/your/directory"
+
+# Function to find all .docx files recursively
+def find_docx_files(directory):
+    docx_files = []
+    for root, _, files in os.walk(directory):
+        for filename in files:
+            if filename.endswith(".docx"):
+                docx_files.append(os.path.join(root, filename))
+    return docx_files
+
+# Get a list of all .docx files in the specified directory and its subdirectories
+docx_files = find_docx_files(directory_path)
+
+# Iterate over each .docx file and add a blank page
+for file_path in docx_files:
+    # Open the Word document
+    doc = Document(file_path)
+
+    # Create a new page break
+    page_break = doc.add_paragraph()
+    page_break.page_break_before = True
+
+    # Save the modified document with the same name
+    doc.save(file_path)
+
+    print(f"Blank page added and document saved: {file_path}")
