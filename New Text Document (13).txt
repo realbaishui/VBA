@@ -1,0 +1,38 @@
+import os
+import pyxlsb
+import openpyxl
+
+def add_blank_sheet_to_xlsm(input_file_path, output_file_path):
+    try:
+        # Open the Excel file using pyxlsb
+        with pyxlsb.open_workbook(input_file_path) as wb_xlsb:
+            # Create a new Excel workbook
+            wb = openpyxl.Workbook()
+
+            # Add a blank sheet to the new workbook
+            ws = wb.active
+            ws.title = 'BlankSheet'
+
+            # Copy data from the original file to the new sheet
+            with wb_xlsb.get_sheet(1) as sheet:
+                for row in sheet.rows():
+                    ws.append([item.v for item in row])
+
+            # Save the modified Excel file
+            wb.save(output_file_path)
+
+        print(f"Blank sheet added to: {output_file_path}")
+    except Exception as e:
+        print(f"Error processing {input_file_path}: {str(e)}")
+
+def process_directory(directory):
+    for root, _, files in os.walk(directory):
+        for filename in files:
+            if filename.lower().endswith(".xlsm"):
+                input_file_path = os.path.join(root, filename)
+                output_file_path = input_file_path  # Use the same location and name
+                add_blank_sheet_to_xlsm(input_file_path, output_file_path)
+
+if __name__ == "__main__":
+    target_directory = "your_target_directory_path_here"
+    process_directory(target_directory)
