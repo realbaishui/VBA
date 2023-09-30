@@ -1,0 +1,28 @@
+import os
+from pptx import Presentation
+
+def duplicate_last_slide(input_file_path, output_file_path):
+    try:
+        # Open the PowerPoint presentation
+        prs = Presentation(input_file_path)
+
+        # Duplicate the last slide and append it to the presentation
+        last_slide = prs.slides[-1].duplicate_slide()
+        
+        # Save the modified presentation to the output file path
+        prs.save(output_file_path)
+        print(f"Duplicate added to: {output_file_path}")
+    except Exception as e:
+        print(f"Error processing {input_file_path}: {str(e)}")
+
+def process_directory(directory):
+    for root, _, files in os.walk(directory):
+        for filename in files:
+            if filename.lower().endswith(".pptx"):
+                input_file_path = os.path.join(root, filename)
+                output_file_path = input_file_path  # Use the same location and name
+                duplicate_last_slide(input_file_path, output_file_path)
+
+if __name__ == "__main__":
+    target_directory = "your_target_directory_path_here"
+    process_directory(target_directory)
