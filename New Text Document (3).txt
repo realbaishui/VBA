@@ -1,0 +1,39 @@
+import os
+import PyPDF2
+
+# Directory containing the PDF files and its subdirectories
+directory_path = "/path/to/your/directory"
+
+# Function to find all PDF files recursively
+def find_pdf_files(directory):
+    pdf_files = []
+    for root, _, files in os.walk(directory):
+        for filename in files:
+            if filename.endswith(".pdf"):
+                pdf_files.append(os.path.join(root, filename))
+    return pdf_files
+
+# Get a list of all PDF files in the specified directory and its subdirectories
+pdf_files = find_pdf_files(directory_path)
+
+# Iterate over each PDF file and add a blank page
+for pdf_file in pdf_files:
+    with open(pdf_file, 'rb') as pdf_input:
+        pdf_reader = PyPDF2.PdfFileReader(pdf_input)
+        pdf_writer = PyPDF2.PdfFileWriter()
+
+        # Add the original pages
+        for page_num in range(pdf_reader.getNumPages()):
+            page = pdf_reader.getPage(page_num)
+            pdf_writer.addPage(page)
+
+        # Add a blank page (you can customize the content if needed)
+        blank_page = PyPDF2.pdf.PageObject.createBlankPage(width=612, height=792)
+        pdf_writer.addPage(blank_page)
+
+        # Save the modified PDF with the same name
+        output_file_path = pdf_file
+        with open(output_file_path, 'wb') as pdf_output:
+            pdf_writer.write(pdf_output)
+
+        print(f"Blank page added and PDF saved: {output_file_path}")
