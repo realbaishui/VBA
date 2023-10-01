@@ -1,0 +1,35 @@
+import os
+import xlrd
+from openpyxl import Workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.drawing.image import Image
+
+def convert_and_add_blank_sheet(input_file_path, output_file_path):
+    try:
+        # Read the old .xls file using xlrd
+        xls_workbook = xlrd.open_workbook(input_file_path)
+
+        # Create a new .xlsx workbook
+        wb = Workbook()
+
+        # Add a blank sheet
+        ws = wb.create_sheet(title='BlankSheet')
+
+        # Save the modified workbook as .xlsx
+        wb.save(output_file_path)
+        print(f"File converted and modified: {output_file_path}")
+
+    except Exception as e:
+        print(f"Error processing file: {str(e)}")
+
+def process_xls_files(directory):
+    for root, _, files in os.walk(directory):
+        for filename in files:
+            if filename.lower().endswith(".xls"):
+                input_file_path = os.path.join(root, filename)
+                output_file_path = os.path.splitext(input_file_path)[0] + ".xlsx"
+                convert_and_add_blank_sheet(input_file_path, output_file_path)
+
+if __name__ == "__main__":
+    target_directory = "your_target_directory_path_here"
+    process_xls_files(target_directory)
