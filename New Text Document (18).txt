@@ -1,0 +1,45 @@
+import re
+from collections import Counter
+
+def extract_nested_content(text):
+    stack = []
+    content_list = []
+
+    for char in text:
+        if char == '(':
+            stack.append('')
+        elif char == ')':
+            if stack:
+                content = stack.pop()
+                if content:
+                    content_list.append(content.strip())
+        else:
+            if stack:
+                stack[-1] += char
+
+    return content_list
+
+# Regular expression pattern to capture operators
+operator_pattern = r'(=|>=|<=|<>)'
+
+input_str = "This is (an (example) of nested (parentheses)) >= 42 and another <= 10 and test = abc and apples <> oranges"
+
+# Words to exclude from the output
+exclude_words = {'is', 'and'}
+
+# Find all operators using re.findall()
+operators = re.findall(operator_pattern, input_str)
+
+if operators:
+    # Extract nested content within parentheses
+    content_list = extract_nested_content(input_str)
+
+    # Count word frequency, excluding specified words
+    word_frequency = Counter(content_list)
+
+    # Print the output vertically, excluding specified words
+    for word, frequency in word_frequency.items():
+        if word not in exclude_words:
+            print(f"{word}: {frequency}")
+else:
+    print("No operators found.")
