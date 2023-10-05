@@ -1,0 +1,58 @@
+import re
+from collections import Counter
+
+def remove_outermost_parentheses(text):
+    stack = []
+    start = -1
+    to_remove = []
+
+    for i, char in enumerate(text):
+        if char == '(':
+            stack.append(i)
+            if start == -1:
+                start = i
+        elif char == ')':
+            stack.pop()
+            if not stack:
+                # Check if this block is immediately after one of the operators
+                if re.search(r'(=|<=|>=|<>|<|>)\s*$', text[max(0, start-2):start]):
+                    to_remove.append((start, i+1))
+                start = -1
+
+    for start, end in reversed(to_remove):  # Need to remove from the end so positions stay valid
+        text = text[:start] + text[end:]
+
+    return text
+
+def extract_all_most_nested(text):
+    pattern = r'(\w*\([^()]+\))'
+    return re.findall(pattern, text)
+
+def word_frequencies(text, exclude_list=None):
+    if exclude_list is None:
+        exclude_list = []
+
+    exclude_list = [word.lower() for word in exclude_list]
+
+    text = remove_outermost_parentheses(text)
+    all_nested_contents = extract_all_most_nested(text)
+
+    for nested_content in all_nested_contents:
+        text = text.replace(nested_content, '', 1)
+
+    words = re.findall(r'\b(?!\d+\b)[\w.]+\b', text.lower())
+    words.extend(all_nested_contents)
+
+    words = [word for word in words if word not in exclude_list and not word.isdigit() and len(word) > 1]
+
+    frequency = Counter(words)
+    sorted_frequency = dict(sorted(frequency.items(), key=lambda item: item[1], reverse=True))
+
+    return sorted_frequency
+
+# Testing
+text = "fefiifjeijf rrr eedd ee functionA(arg1, arg2) = (value1 with (nested content)) >= (feife (123ya bcc 11) testfunc(substr(a, 1, 2)) fefe sd) with other words like AAA.BBB and AAA <> (value2) > (value3 with (another nested))"
+
+frequencies = word_frequencies(text, exclude_list=["this", "is"])
+for word, count in frequencies.items():
+    print(f"{word}: {count}")
