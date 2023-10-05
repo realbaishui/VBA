@@ -1,0 +1,64 @@
+import pandas as pd
+
+# Specify the path to your CSV file
+file_path = 'path_to_your_file.csv'
+
+# Read the data table from the CSV file
+df = pd.read_csv(file_path)
+
+# Ensure the column name you want to extract is correctly specified
+column_name = 'your_column_name'
+
+# Extract the desired column
+column_data = df[column_name]
+
+# Combine all the rows from this column into a single text
+combined_text = ' '.join(column_data.astype(str))
+
+# Remove all occurrences of """
+cleaned_text = combined_text.replace('"""', '')
+
+print(cleaned_text)  # This will display the cleaned, combined text
+
+
+
+import re
+from collections import Counter
+
+def extract_before_operator(text, exclude_list=None):
+    if exclude_list is None:
+        exclude_list = []
+
+    # This regex captures:
+    # 1. content between parentheses (if present): \(.*?\)
+    # 2. a standalone word (if present): \b\w+\b
+    # Either should be immediately followed by one of the operators with optional whitespace: \s*(>=|<=|=|<>)
+    pattern = r'(\(.*?\))(?=\s*(>=|<=|=|<>))|(\b\w+\b)(?=\s*(>=|<=|=|<>))'
+    
+    matches = re.findall(pattern, text)
+    
+    if not matches:
+        return "No matches found."
+
+    # Extract parentheses content or word for each match, excluding specified words
+    results = [parentheses or word for parentheses, _, word, _ in matches if word not in exclude_list]
+    
+    # Get frequency count
+    frequency = Counter(results)
+    
+    # Return frequency count in a vertical manner without colons
+    output = '\n'.join(["{} {}".format(item, count) for item, count in frequency.items()])
+    
+    return output
+
+# Testing the function
+text1 = "Example with (direct parentheses content) >= some other content and word = another example (another parentheses) = test and (direct parentheses content) >= test"
+print(extract_before_operator(text1, exclude_list=["word"]))  
+# Expected Output:
+# (direct parentheses content) 2
+# (another parentheses) 1
+
+text2 = "Another example word1 = yet another word2 >= and word3 <> word2 ="
+print(extract_before_operator(text2, exclude_list=["word1", "word3"]))  
+# Expected Output:
+# word2 2
