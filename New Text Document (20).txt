@@ -1,0 +1,46 @@
+import re
+from collections import Counter
+
+def extract_all_most_nested(text):
+    # The pattern captures a word immediately preceding a left parenthesis (if present)
+    # and then captures the content inside the most nested parentheses.
+    pattern = r'(\w*\([^()]+\))'
+    return re.findall(pattern, text)
+
+def word_frequencies(text, exclude_list=None):
+    if exclude_list is None:
+        exclude_list = []
+
+    # Convert the exclusion list to lowercase to ensure case-insensitive comparison
+    exclude_list = [word.lower() for word in exclude_list]
+
+    # Extract all most nested parentheses content
+    all_nested_contents = extract_all_most_nested(text)
+
+    # Remove these nested contents from the original text to avoid double counting
+    for nested_content in all_nested_contents:
+        text = text.replace(nested_content, '', 1)
+
+    # Tokenize the text. The pattern recognizes words and dot-separated words
+    words = re.findall(r'\b(?!\d+\b)[\w.]+\b', text.lower())
+    
+    # Extend the list of words with all the nested contents
+    words.extend(all_nested_contents)
+
+    # Exclude the specified words, numbers, and single alphabets
+    words = [word for word in words if word not in exclude_list and not word.isdigit() and len(word) > 1]
+
+    # Get the frequency count for each word
+    frequency = Counter(words)
+
+    # Sort the frequency count from largest to smallest
+    sorted_frequency = dict(sorted(frequency.items(), key=lambda item: item[1], reverse=True))
+
+    return sorted_frequency
+
+# Testing the functions
+text = "fefiifjeijf rrr eedd ee functionA(arg1, arg2) (feife (123ya bcc 11) testfunc(substr(a, 1, 2)) fefe sd) with other words like AAA.BBB and AAA"
+
+frequencies = word_frequencies(text, exclude_list=["this", "is"])
+for word, count in frequencies.items():
+    print(f"{word}: {count}")
