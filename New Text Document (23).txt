@@ -1,0 +1,72 @@
+import re
+
+def remove_outermost_parentheses(text):
+    stack = []
+    start = -1
+    to_remove = []
+
+    for i, char in enumerate(text):
+        if char == '(':
+            stack.append(i)
+            if start == -1:
+                start = i
+        elif char == ')':
+            if stack:  
+                stack.pop()
+                if not stack:
+                    if re.search(r'(=|<=|>=|<>|<|>)\s*$', text[max(0, start-2):start]):
+                        to_remove.append((start, i+1))
+                    start = -1
+
+    for start, end in reversed(to_remove):  
+        text = text[:start] + text[end:]
+
+    return text
+
+def extract_all_most_nested(text):
+    pattern = r'(\w*\([^()]+\))'
+    return re.findall(pattern, text)
+
+def extract_and_concatenate(text, exclude_list=None):
+    if exclude_list is None:
+        exclude_list = []
+
+    exclude_list = [word.lower() for word in exclude_list]
+
+    text = remove_outermost_parentheses(text)
+    all_nested_contents = extract_all_most_nested(text)
+
+    for nested_content in all_nested_contents:
+        text = text.replace(nested_content, '', 1)
+
+    words = re.findall(r'\b(?!\d+\b)[\w.]+\b', text.lower())
+    words.extend(all_nested_contents)
+
+    words = [word for word in words if word not in exclude_list and not word.isdigit() and len(word) > 1]
+
+    return ' '.join(words)
+
+def clean_unmatched_parentheses(word):
+    while word.count("(") != word.count(")"):
+        if word.count("(") > word.count(")"):
+            word = word.replace("(", "", 1)
+        else:
+            word = word.replace(")", "", 1)
+    return word
+
+# Testing
+text = "fefiifjeijf rrr eedd ee functionA(arg1, arg2) = (value1 with (nested content)) >= (feife (123ya bcc 11) testfunc(substr(a, 1, 2)) fefe sd) with other words like AAA.BBB and AAA <> (value2) > (value3 with (another nested))"
+
+new_text = extract_and_concatenate(text, exclude_list=["this", "is"])
+final_extraction = extract_and_concatenate(new_text)
+
+# Filter out words with unmatched ")" or "(", and numbers.
+final_words = [clean_unmatched_parentheses(word) for word in final_extraction.split() if not word.isdigit()]
+
+from collections import Counter
+
+frequencies = Counter(final_words)
+sorted_frequency = dict(sorted(frequencies.items(), key=lambda item: item[1], reverse=True))
+
+for word, count in sorted_frequency.items():
+    print(f"{word}: {count}")
